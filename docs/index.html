@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>laravel-production-audit · Claude Code plugin</title>
+<meta name="description" content="A Claude Code skill that audits an existing Laravel 13 / PHP 8.4 app for production readiness and generates ready-to-use production config files.">
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --panel-2: #1c2330;
+    --border: #2a3140;
+    --text: #e6edf3;
+    --muted: #9aa7b4;
+    --laravel: #f4503f;
+    --laravel-dim: #c43c2f;
+    --accent: #5eb3f6;
+    --green: #3fb950;
+    --amber: #d29922;
+    --red: #f85149;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: var(--sans); line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px; }
+
+  /* Hero */
+  header.hero {
+    border-bottom: 1px solid var(--border);
+    background:
+      radial-gradient(1200px 400px at 50% -150px, rgba(244,80,63,0.15), transparent 70%),
+      var(--bg);
+    padding: 72px 0 56px;
+    text-align: center;
+  }
+  .badge {
+    display: inline-block; font-family: var(--mono); font-size: 12px;
+    color: var(--muted); border: 1px solid var(--border); border-radius: 999px;
+    padding: 4px 12px; margin-bottom: 22px; letter-spacing: .3px;
+  }
+  .badge b { color: var(--laravel); }
+  h1 {
+    font-size: clamp(34px, 6vw, 52px); line-height: 1.1; margin: 0 0 16px;
+    letter-spacing: -1px;
+  }
+  h1 .mono { font-family: var(--mono); color: var(--laravel); }
+  .tagline { font-size: clamp(16px, 2.5vw, 20px); color: var(--muted); max-width: 660px; margin: 0 auto 32px; }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; font-weight: 600; font-size: 15px; padding: 11px 20px;
+    border-radius: 8px; border: 1px solid transparent; cursor: pointer;
+  }
+  .btn-primary { background: var(--laravel); color: #fff; }
+  .btn-primary:hover { background: var(--laravel-dim); text-decoration: none; }
+  .btn-ghost { border-color: var(--border); color: var(--text); background: var(--panel); }
+  .btn-ghost:hover { border-color: var(--muted); text-decoration: none; }
+
+  /* Sections */
+  section { padding: 56px 0; border-bottom: 1px solid var(--border); }
+  section h2 { font-size: 26px; margin: 0 0 8px; letter-spacing: -.5px; }
+  section .sub { color: var(--muted); margin: 0 0 28px; }
+
+  /* Install */
+  .code {
+    position: relative; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px 20px; font-family: var(--mono);
+    font-size: 14px; overflow-x: auto; margin: 0 0 14px;
+  }
+  .code .c { color: var(--muted); }   /* comment */
+  .code .p { color: var(--laravel); } /* command prefix */
+  .copy {
+    position: absolute; top: 10px; right: 10px; font-family: var(--sans);
+    font-size: 12px; color: var(--muted); background: var(--panel-2);
+    border: 1px solid var(--border); border-radius: 6px; padding: 4px 9px; cursor: pointer;
+  }
+  .copy:hover { color: var(--text); border-color: var(--muted); }
+  .note { font-size: 13px; color: var(--muted); }
+  .note code { font-family: var(--mono); color: var(--accent); }
+
+  /* Feature grid */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px;
+  }
+  .card h3 { margin: 0 0 6px; font-size: 16px; }
+  .card p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  /* Severity legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+  .pill {
+    font-size: 13px; padding: 6px 12px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--panel);
+  }
+
+  /* Deliverables / what you get */
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .two { grid-template-columns: 1fr; } }
+  ul.tight { margin: 8px 0 0; padding-left: 20px; color: var(--muted); font-size: 14px; }
+  ul.tight li { margin: 3px 0; }
+  code.inl { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+
+  /* Sample */
+  pre.sample {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px 20px; overflow-x: auto; font-family: var(--mono); font-size: 13px;
+    line-height: 1.55; color: var(--text); margin: 0;
+  }
+  pre.sample .h { color: var(--laravel); }
+  pre.sample .crit { color: var(--red); }
+  pre.sample .ok { color: var(--green); }
+  pre.sample .dim { color: var(--muted); }
+
+  footer { padding: 40px 0 60px; text-align: center; color: var(--muted); font-size: 14px; border-bottom: none; }
+  footer a { color: var(--muted); text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="badge">Claude Code plugin · <b>Laravel 13</b> · <b>PHP 8.4</b></div>
+    <h1><span class="mono">laravel-production-audit</span></h1>
+    <p class="tagline">
+      Point Claude at an existing Laravel app and get back a severity-rated
+      readiness report — every finding cites <code class="inl">file:line</code> —
+      plus a folder of ready-to-drop-in production config files.
+    </p>
+    <div class="cta">
+      <a class="btn btn-primary" href="#install">Install</a>
+      <a class="btn btn-ghost" href="https://github.com/corbital/corbital-laravel-plugins">View on GitHub</a>
+    </div>
+  </div>
+</header>
+
+<section id="what">
+  <div class="wrap">
+    <h2>What it does</h2>
+    <p class="sub">Reads the actual code and config first, then prescribes — never guesses at defaults.</p>
+    <div class="grid">
+      <div class="card"><h3>Request lifecycle</h3><p>Flags blocking work in the request path — sync HTTP calls, un-queued mail, heavy middleware.</p></div>
+      <div class="card"><h3>Queue &amp; Horizon</h3><p>Job design, supervisor sizing, failed-job handling, and orphaned queues nothing drains.</p></div>
+      <div class="card"><h3>Memory &amp; footprint</h3><p>Unbounded loads, chunking, per-worker RSS — built for small hardware.</p></div>
+      <div class="card"><h3>Database</h3><p>N+1 detection, missing indexes, query efficiency, and write-in-loop patterns.</p></div>
+      <div class="card"><h3>Redis</h3><p>Cache / session / lock usage, TTL gaps, phpredis vs predis, DB separation.</p></div>
+      <div class="card"><h3>Server config</h3><p>PHP-FPM pool, OPcache (PHP 8.4 JIT), Supervisor, and a hardened Nginx block.</p></div>
+      <div class="card"><h3>Concurrency</h3><p>Duplicate jobs, TOCTOU races, and atomic-lock patterns under load.</p></div>
+      <div class="card"><h3>Multi-tenancy</h3><p>Per-tenant cache and queue isolation — where a missing prefix is a data leak.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <h2>Install</h2>
+    <p class="sub">In Claude Code — add the marketplace, then install the plugin.</p>
+    <div class="code" id="cmd-cc">
+      <button class="copy" data-target="cmd-cc">Copy</button>
+<span class="c"># Claude Code (slash commands)</span>
+<span class="p">/plugin</span> marketplace add corbital/corbital-laravel-plugins
+<span class="p">/plugin</span> install laravel-production-audit@corbital-laravel-plugins
+    </div>
+    <div class="code" id="cmd-cli">
+      <button class="copy" data-target="cmd-cli">Copy</button>
+<span class="c"># …or the CLI equivalent</span>
+<span class="p">claude</span> plugin marketplace add corbital/corbital-laravel-plugins
+<span class="p">claude</span> plugin install laravel-production-audit@corbital-laravel-plugins
+    </div>
+    <p class="note">
+      Then just ask in plain language — the skill auto-triggers. Or invoke it
+      explicitly with <code>/laravel-production-audit:laravel-production-audit</code>.
+    </p>
+  </div>
+</section>
+
+<section id="use">
+  <div class="wrap">
+    <h2>Then ask</h2>
+    <p class="sub">No flags, no path syntax — natural language pulls the skill in.</p>
+    <div class="two">
+      <div class="card"><p>“Audit my Laravel app for production readiness and give me the config files.”</p></div>
+      <div class="card"><p>“Why is my Laravel app slow under load?”</p></div>
+      <div class="card"><p>“Tune Horizon — workers keep getting OOM-killed.”</p></div>
+      <div class="card"><p>“Get this Laravel project production-ready before we go live.”</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="get">
+  <div class="wrap">
+    <h2>What you get back</h2>
+    <p class="sub">Two deliverables, written into the project you audited.</p>
+    <div class="two">
+      <div class="card">
+        <h3><code class="inl">PERF_AUDIT_REPORT.md</code></h3>
+        <p>Findings grouped by severity, each citing a real <code class="inl">file:line</code>, plus a section-by-section breakdown.</p>
+        <div class="legend">
+          <span class="pill">🔴 Critical</span>
+          <span class="pill">🟠 High</span>
+          <span class="pill">🟡 Medium</span>
+          <span class="pill">✅ OK</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3><code class="inl">PERF_CONFIGS/</code></h3>
+        <p>Complete, production-ready files — populated from the findings:</p>
+        <ul class="tight">
+          <li><code class="inl">horizon.php</code>, <code class="inl">supervisor-laravel.conf</code></li>
+          <li><code class="inl">php-fpm-www.conf</code>, <code class="inl">opcache.ini</code>, <code class="inl">php-web/cli.ini</code></li>
+          <li><code class="inl">nginx-performance.conf</code>, <code class="inl">redis-separation.md</code></li>
+          <li><code class="inl">.env.production.example</code>, <code class="inl">deploy-cache.sh</code>, <code class="inl">INDEXES_TO_ADD.md</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sample">
+  <div class="wrap">
+    <h2>Sample output</h2>
+    <p class="sub">Trimmed and anonymized. <a href="SAMPLE_REPORT.md">See the full excerpt →</a></p>
+<pre class="sample"><span class="h"># Performance Audit Report</span>
+<span class="dim">## Project: acme/billing-api</span>
+<span class="dim">## Laravel: 13.x | PHP: 8.4 | DB: mysql | Tenancy: none</span>
+
+<span class="h">## Critical Issues (🔴) — Fix Before Go-Live</span>
+<span class="crit">🔴</span> app/Events/InvoicePaid.php:18 — event uses queue 'broadcasts'
+   but the only worker drains 'default' → broadcasts never fire.
+<span class="crit">🔴</span> .env.example:2,4 — ships APP_ENV=local, APP_DEBUG=true.
+
+<span class="h">## Already Good (✅)</span>
+<span class="ok">✅</span> Redis split into logical DBs — a cache flush won't drop the queue.
+<span class="ok">✅</span> phpredis (C ext) + persistent connections enabled.</pre>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How it's built</h2>
+    <p class="sub">Progressive disclosure — a lean core that loads detail only when needed.</p>
+    <div class="grid">
+      <div class="card"><h3>Self-contained sections</h3><p>11 audit sections, each its own reference file with its own checklist and severities. Run the whole thing — or just one section.</p></div>
+      <div class="card"><h3>Reusable templates</h3><p>Every config file is a standalone annotated template. Grab <code class="inl">opcache.ini</code> on its own, no audit required.</p></div>
+      <div class="card"><h3>Honest by design</h3><p>Every finding ties to code it read. Severity rates by impact, never by how hard the fix is.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>MIT licensed · part of the <a href="https://github.com/corbital/corbital-laravel-plugins">corbital-laravel-plugins</a> marketplace</p>
+    <p class="note">Built for any modern Laravel codebase. Not affiliated with the Laravel project.</p>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.copy').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var el = document.getElementById(b.dataset.target);
+      // strip the leading "Copy" button text and comment markers, keep command lines
+      var lines = el.innerText.split('\n').filter(function (l) {
+        var t = l.trim();
+        return t && t !== 'Copy' && !t.startsWith('#');
+      });
+      navigator.clipboard.writeText(lines.join('\n').trim()).then(function () {
+        var old = b.textContent; b.textContent = 'Copied'; setTimeout(function () { b.textContent = old; }, 1400);
+      });
+    });
+  });
+</script>
+</body>
+</html>

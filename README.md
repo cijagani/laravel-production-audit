@@ -67,14 +67,18 @@ corbital-laravel-plugins/
                 └── assets/PERF_CONFIGS/  ← 11 annotated config templates
 ```
 
-## Before you publish your fork
+## Homepage
 
-The `homepage`/`repository` URLs in `marketplace.json`, `plugin.json`, and the
-install commands above use `corbital/corbital-laravel-plugins` as a placeholder.
-Replace it with your real `owner/repo` everywhere before pushing, so plugin
-listings don't show dead links. The marketplace *name* after the `@`
-(`corbital-laravel-plugins`) is set in the manifest and is independent of the
-repo path.
+A landing page lives at [`docs/index.html`](docs/index.html), served via GitHub
+Pages at <https://corbital.github.io/corbital-laravel-plugins/>.
+
+To enable it: in the GitHub repo, **Settings → Pages → Build and deployment →
+Source: Deploy from a branch**, then select branch `main` and folder `/docs`.
+The page is a single self-contained HTML file — no build step.
+
+> If you publish under a different `owner/repo`, update the install commands
+> above, the `homepage` URLs in both manifests, and the GitHub links in
+> `docs/index.html` to match.
 
 ## License
 
