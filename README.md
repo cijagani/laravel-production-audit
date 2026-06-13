@@ -1,0 +1,81 @@
+# Corbital Laravel Plugins — Claude Code Marketplace
+
+A [Claude Code](https://claude.com/claude-code) plugin marketplace for Laravel
+development, performance, and operations. Currently ships one plugin:
+
+## `laravel-production-audit`
+
+Audits an existing **Laravel 13 / PHP 8.4** application for **production
+readiness** — performance, memory footprint, reliability, concurrency, and
+tenancy isolation — then generates **production-ready config files**: Horizon,
+PHP-FPM, OPcache, Nginx, Supervisor, Redis separation, hardened `.env`, deploy
+script, and missing-index migration stubs.
+
+It produces two deliverables: a `PERF_AUDIT_REPORT.md` (findings by severity, each
+citing `file:line`) and a `PERF_CONFIGS/` folder of complete config files.
+
+## Install
+
+In Claude Code:
+
+```
+/plugin marketplace add corbital/corbital-laravel-plugins
+/plugin install laravel-production-audit@corbital-laravel-plugins
+```
+
+Or via the CLI:
+
+```bash
+claude plugin marketplace add corbital/corbital-laravel-plugins
+claude plugin install laravel-production-audit@corbital-laravel-plugins
+```
+
+> Replace `corbital/corbital-laravel-plugins` with the actual `owner/repo` you
+> push this to. The marketplace name (`corbital-laravel-plugins`, after the `@`)
+> is fixed by the manifest and does not change with the repo path.
+
+## Use
+
+Once installed, just ask Claude in plain language — the skill auto-triggers:
+
+- "Audit my Laravel app for production readiness and give me the config files."
+- "Why is my Laravel app slow under load?"
+- "Tune Horizon — workers keep getting OOM-killed."
+- "Get this Laravel project production-ready."
+
+You can also run a single audit section or grab a single config template — see
+the skill's `HELP.md` for individual-file usage.
+
+See [`docs/SAMPLE_REPORT.md`](docs/SAMPLE_REPORT.md) for a trimmed, anonymized
+example of the output before you install.
+
+## What's inside
+
+```
+corbital-laravel-plugins/
+├── .claude-plugin/
+│   └── marketplace.json
+└── plugins/
+    └── laravel-production-audit/
+        ├── .claude-plugin/
+        │   └── plugin.json
+        └── skills/
+            └── laravel-production-audit/
+                ├── SKILL.md        ← agent-facing instructions
+                ├── HELP.md         ← human usage guide
+                ├── references/     ← 12 self-contained audit sections + output contract
+                └── assets/PERF_CONFIGS/  ← 11 annotated config templates
+```
+
+## Before you publish your fork
+
+The `homepage`/`repository` URLs in `marketplace.json`, `plugin.json`, and the
+install commands above use `corbital/corbital-laravel-plugins` as a placeholder.
+Replace it with your real `owner/repo` everywhere before pushing, so plugin
+listings don't show dead links. The marketplace *name* after the `@`
+(`corbital-laravel-plugins`) is set in the manifest and is independent of the
+repo path.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

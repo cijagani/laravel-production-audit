@@ -1,0 +1,17 @@
+# Generated audit output, if anyone test-runs the skill from the repo root.
+# (Scoped to the repo root so it never matches the skill's own asset templates
+# under plugins/*/skills/*/assets/PERF_CONFIGS/, which ARE part of the skill.)
+/PERF_AUDIT_REPORT.md
+/PERF_CONFIGS/
+
+# Environment / secrets — but keep the example template that ships with the skill
+.env
+.env.local
+.env.*.local
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

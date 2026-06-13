@@ -1,0 +1,12 @@
+{
+  "name": "laravel-production-audit",
+  "description": "Audit an existing Laravel 13 / PHP 8.4 application for production readiness — performance, memory footprint, reliability, concurrency, and tenancy isolation — and produce a findings report plus ready-to-use production config files. Covers HTTP lifecycle, queue/Horizon, scheduler, memory, Redis, database/N+1, PHP-FPM, OPcache, Supervisor, app config, concurrency, and multi-tenancy.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Corbital Technologies",
+    "email": "admin@corbitaltechnologies.com"
+  },
+  "homepage": "https://github.com/corbital/corbital-laravel-plugins",
+  "repository": "https://github.com/corbital/corbital-laravel-plugins",
+  "license": "MIT"
+}

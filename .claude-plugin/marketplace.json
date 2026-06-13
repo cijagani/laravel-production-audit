@@ -1,0 +1,20 @@
+{
+  "name": "corbital-laravel-plugins",
+  "description": "Corbital's Claude Code plugins for Laravel development, performance, and operations.",
+  "owner": {
+    "name": "Corbital Technologies",
+    "email": "admin@corbitaltechnologies.com"
+  },
+  "plugins": [
+    {
+      "name": "laravel-production-audit",
+      "source": "./plugins/laravel-production-audit",
+      "description": "Audit an existing Laravel 13 / PHP 8.4 app for production readiness — performance, memory footprint, reliability, concurrency, and tenancy isolation — then generate production-ready config files (Horizon, PHP-FPM, OPcache, Nginx, Supervisor, Redis).",
+      "author": {
+        "name": "Corbital Technologies"
+      },
+      "homepage": "https://github.com/corbital/corbital-laravel-plugins",
+      "license": "MIT"
+    }
+  ]
+}
