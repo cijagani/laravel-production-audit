@@ -69,16 +69,19 @@ corbital-laravel-plugins/
 
 ## Homepage
 
-A landing page lives at [`docs/index.html`](docs/index.html), served via GitHub
-Pages at <https://corbital.github.io/corbital-laravel-plugins/>.
+The landing page is served via GitHub Pages at
+<https://corbital.github.io/corbital-laravel-plugins/>. The built output lives in
+[`docs/`](docs/); the source is a Vite + React + Tailwind + shadcn/ui project in
+[`site/`](site/) (see [`site/README.md`](site/README.md) to rebuild).
 
 To enable it: in the GitHub repo, **Settings → Pages → Build and deployment →
 Source: Deploy from a branch**, then select branch `main` and folder `/docs`.
-The page is a single self-contained HTML file — no build step.
+No GitHub Action is needed — the build is committed under `docs/`.
 
 > If you publish under a different `owner/repo`, update the install commands
-> above, the `homepage` URLs in both manifests, and the GitHub links in
-> `docs/index.html` to match.
+> above, the `homepage` URLs in both manifests, the `base` in
+> `site/vite.config.ts`, and the `REPO` constant in `site/src/content.ts`, then
+> rebuild.
 
 ## License
 

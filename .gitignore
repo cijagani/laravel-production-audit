@@ -9,6 +9,13 @@
 .env.local
 .env.*.local
 
+# Landing-page build tooling (the SOURCE in site/ is committed; deps + local
+# build dirs are not). The built site is committed under docs/ for GitHub Pages.
+site/node_modules/
+site/dist/
+site/.shots/
+*.tsbuildinfo
+
 # OS / editor cruft
 .DS_Store
 Thumbs.db
