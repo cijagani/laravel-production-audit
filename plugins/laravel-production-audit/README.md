@@ -40,6 +40,10 @@ ask for a single section. See `skills/laravel-production-audit/HELP.md`.
 - **Sends nothing anywhere.** The plugin contains only Markdown instructions
   and text templates: no hooks, no MCP servers, no scripts, no network calls,
   and no credentials.
+- **The config templates are text, never executed.** They are starting points
+  for your app's own config files. Where your app's config needs a setting
+  from its environment, the audit tells you which key to keep; the plugin
+  itself never reads environment variables or credentials.
 
 ## License
 

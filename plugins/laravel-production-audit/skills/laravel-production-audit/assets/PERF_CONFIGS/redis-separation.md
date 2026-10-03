@@ -15,61 +15,44 @@ monitored independently.
 > `maxmemory-policy` are per Redis *instance*. See the server section below.
 > Redis Cluster only has DB 0 (and Horizon doesn't support Cluster at all).
 
-## `config/database.php` Redis stanza
+## `config/database.php` Redis changes
 
-Keeps every key Laravel 13's stock config ships (auth + reconnect backoff) and
-adds a `session` connection.
+Edit the app's existing `redis` array — don't replace it. Laravel 13's stock
+config already has the connection keys (`url`, `host`, `username`, `password`,
+`port`, `max_retries`, `backoff_*`); leave them exactly as they are. Only the
+keys below change, plus one new `session` connection.
 
 ```php
 'redis' => [
     'client' => env('REDIS_CLIENT', 'phpredis'), // reason: C ext, faster + lower memory than predis
 
     'options' => [
-        'cluster' => env('REDIS_CLUSTER', 'redis'),
-        'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
+        // ...stock `cluster` and `prefix` keys unchanged
         'persistent' => env('REDIS_PERSISTENT', true), // reason: reuse connections per worker
     ],
 
     'default' => [   // queue + Horizon
-        'url' => env('REDIS_URL'),
-        'host' => env('REDIS_HOST', '127.0.0.1'),
-        'username' => env('REDIS_USERNAME'),
-        'password' => env('REDIS_PASSWORD'),
-        'port' => env('REDIS_PORT', '6379'),
+        // ...stock connection keys unchanged
         'database' => env('REDIS_DB', '0'),
-        'max_retries' => env('REDIS_MAX_RETRIES', 3),                         // reason: survive brief network blips
-        'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
-        'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
-        'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
     ],
 
     'cache' => [
-        'url' => env('REDIS_URL'),
-        'host' => env('REDIS_HOST', '127.0.0.1'),
-        'username' => env('REDIS_USERNAME'),
-        'password' => env('REDIS_PASSWORD'),
-        'port' => env('REDIS_PORT', '6379'),
+        // ...stock connection keys unchanged
         'database' => env('REDIS_CACHE_DB', '1'),
-        'max_retries' => env('REDIS_MAX_RETRIES', 3),
-        'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
-        'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
-        'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
     ],
 
-    'session' => [   // reason: only used if SESSION_CONNECTION=session is set in .env
-        'url' => env('REDIS_URL'),
-        'host' => env('REDIS_HOST', '127.0.0.1'),
-        'username' => env('REDIS_USERNAME'),
-        'password' => env('REDIS_PASSWORD'),
-        'port' => env('REDIS_PORT', '6379'),
+    // reason: new connection for sessions. Copy every key from `default`
+    // (same host and auth), then change only `database`.
+    'session' => [
+        // ...same keys as `default`
         'database' => env('REDIS_SESSION_DB', '2'),
-        'max_retries' => env('REDIS_MAX_RETRIES', 3),
-        'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
-        'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
-        'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
     ],
 ],
 ```
+
+Common mistake this avoids: a hand-written Redis stanza that drops the stock
+`password` and retry keys connects fine on a laptop and then fails against an
+auth-protected production Redis.
 
 And in `.env`: `SESSION_CONNECTION=session` — without it the session driver
 uses the `default` (queue) connection regardless of the stanza above.

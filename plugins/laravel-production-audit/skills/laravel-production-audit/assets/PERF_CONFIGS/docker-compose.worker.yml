@@ -16,7 +16,7 @@ services:
     image: registry.example.com/app:${APP_RELEASE:?set APP_RELEASE}   # reason: pinned release tag, never :latest
     command: ["php", "artisan", "horizon"]   # reason: exec form so PHP, not /bin/sh, receives SIGTERM
     init: true                               # reason: tiny init as PID 1 forwards signals and reaps zombies
-    env_file: .env                           # reason: secrets stay out of the image and out of git
+    env_file: .env                           # reason: same app config as the web tier, kept out of the image
     environment:
       HORIZON_ENV: burst                     # reason: picks the 'burst' supervisors; APP_ENV stays production
       LOG_CHANNEL: stderr                    # reason: node is disposable — logs go to the collector, not local disk
