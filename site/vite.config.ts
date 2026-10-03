@@ -3,10 +3,10 @@ import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
 import tailwindcss from "@tailwindcss/vite"
 
-// GitHub Pages serves this project at /corbital-laravel-plugins/.
+// GitHub Pages serves this project at /laravel-perf-audit-marketplace/.
 // `base` must match the repo name for assets to resolve.
 export default defineConfig({
-  base: "/corbital-laravel-plugins/",
+  base: "/laravel-perf-audit-marketplace/",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
