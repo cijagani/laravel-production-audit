@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [1.1.0] — 2026-10-03
 
-Re-checked against the Laravel 13 / Horizon 5 docs and source.
+Re-checked against the Laravel 13, Horizon 5, Inertia v3, and Livewire 4 docs and source.
 
 ### Fixed
 - `horizon.php` template: `supervisor-default` had `timeout => 120` against the

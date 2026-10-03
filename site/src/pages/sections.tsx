@@ -41,14 +41,14 @@ function useActive() {
 
 function Index({ active }: { active: number }) {
   return (
-    <nav aria-label="Sections" className="sticky top-24 hidden max-h-[calc(100vh-8rem)] overflow-y-auto lg:block">
-      <ul className="space-y-0.5 border-l border-border">
+    <nav aria-label="Sections" className="sticky top-24 hidden max-h-[calc(100vh-8rem)] self-start overflow-y-auto lg:block">
+      <ul className="space-y-0.5 border-l border-rule">
         {entries.map((e) => (
           <li key={e.n} className="relative">
             {active === e.n && (
               <motion.span
                 layoutId="toc-active"
-                className="absolute -left-px top-0 h-full w-px bg-steel"
+                className="absolute -left-px top-0 h-full w-0.5 bg-ink"
                 transition={{ type: "spring", stiffness: 500, damping: 40 }}
               />
             )}
@@ -56,11 +56,11 @@ function Index({ active }: { active: number }) {
               href={`#${id(e.n)}`}
               aria-current={active === e.n ? "location" : undefined}
               className={cn(
-                "flex gap-2.5 py-1.5 pl-4 text-sm transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring",
-                active === e.n ? "text-foreground" : "text-muted-foreground",
+                "flex gap-2.5 py-1.5 pl-4 text-[14px] transition-colors hover:text-ink focus-visible:outline-2",
+                active === e.n ? "font-medium text-ink" : "text-graphite",
               )}
             >
-              <span className="w-7 shrink-0 font-mono text-xs leading-5 text-steel">{num(e.n)}</span>
+              <span className="w-7 shrink-0 font-mono text-[12px] leading-5 text-graphite">{num(e.n)}</span>
               <span>{e.title}</span>
             </a>
           </li>
@@ -73,26 +73,26 @@ function Index({ active }: { active: number }) {
 function Article({ e }: { e: Entry }) {
   return (
     <Reveal>
-      <article id={id(e.n)} className="scroll-mt-24 rounded-xl border border-border bg-card p-6 sm:p-8">
+      <article id={id(e.n)} className="scroll-mt-24 rounded-lg border border-rule bg-white p-6 sm:p-8">
         <div className="flex flex-wrap items-center gap-3 font-mono text-sm">
-          <span className="text-steel">{num(e.n)}</span>
-          <span className={cn("rounded-full border px-2.5 py-0.5 text-[11px]", e.when ? "border-border text-muted-foreground" : "border-ok/40 text-ok")}>
+          <span className="text-graphite">{num(e.n)}</span>
+          <span className={cn("rounded-full border px-2.5 py-0.5 text-[11px]", e.when ? "border-cobalt/30 bg-cobalt/5 text-cobalt" : "border-ok/30 bg-ok/5 text-ok")}>
             {e.when ? `runs if ${e.when}` : (e.always ?? "always runs")}
           </span>
         </div>
-        <h2 className="mt-3 font-heading text-2xl font-semibold tracking-tight">{e.title}</h2>
-        <p className="mt-2 text-lg text-foreground/85">{e.goal}</p>
+        <h2 className="display mt-3 text-[1.6rem] leading-tight">{e.title}</h2>
+        <p className="mt-2 text-lg text-ink/85">{e.goal}</p>
         <ul className="mt-5 space-y-2.5">
           {e.checks.map((c) => (
-            <li key={c} className="flex gap-3 text-[15px] leading-relaxed text-muted-foreground">
-              <span aria-hidden className="mt-2.25 size-1.5 shrink-0 rounded-full bg-steel/70" />
+            <li key={c} className="flex gap-3 text-[15px] leading-relaxed text-graphite">
+              <span aria-hidden className="mt-2.25 size-1.5 shrink-0 rounded-full bg-ink/40" />
               <span>{c}</span>
             </li>
           ))}
         </ul>
         <a
           href={e.file}
-          className="mt-6 inline-flex items-center gap-1.5 font-mono text-xs text-steel hover:underline"
+          className="mt-6 inline-flex items-center gap-1.5 text-[14px] font-medium text-cobalt hover:underline"
         >
           Read the full checklist on GitHub <ArrowUpRight className="size-3.5" />
         </a>
@@ -112,8 +112,8 @@ function SectionsPage() {
         className="max-w-2xl"
       >
         <Eyebrow>The checklist</Eyebrow>
-        <h1 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">The audit, section by section</h1>
-        <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+        <h1 className="display text-[2.3rem] leading-[1.05] sm:text-[3.2rem]">The audit, section by section</h1>
+        <p className="mt-4 text-lg leading-relaxed text-graphite">
           Discovery runs first. Sections 1–10 always run. Sections 11–14 run only
           when discovery finds a tenancy package, more than one worker host,
           Livewire, or Inertia. You can also ask for any single section on its own.
@@ -127,13 +127,13 @@ function SectionsPage() {
             <Article key={e.n} e={e} />
           ))}
           <Reveal>
-            <div className="rounded-xl border border-dashed border-border p-6 sm:p-8">
-              <div className="font-mono text-sm text-steel">then</div>
-              <h2 className="mt-2 font-heading text-2xl font-semibold tracking-tight">Two files, written into your project</h2>
-              <p className="mt-2 text-muted-foreground">
-                <span className="font-mono text-sm text-foreground">PERF_AUDIT_REPORT.md</span> and{" "}
-                <span className="font-mono text-sm text-foreground">PERF_CONFIGS/</span>.{" "}
-                <a href="./#sample" className="text-steel hover:underline">See a sample finding</a>.
+            <div className="rounded-lg border border-dashed border-ink/25 p-6 sm:p-8">
+              <div className="font-mono text-[12px] uppercase tracking-[0.14em] text-graphite">then</div>
+              <h2 className="display mt-2 text-[1.6rem] leading-tight">Two files, written into your project</h2>
+              <p className="mt-2 text-graphite">
+                <span className="font-mono text-[0.9em] text-ink">PERF_AUDIT_REPORT.md</span> and{" "}
+                <span className="font-mono text-[0.9em] text-ink">PERF_CONFIGS/</span>.{" "}
+                <a href="./#sample" className="font-medium text-cobalt hover:underline">See a sample finding</a>.
               </p>
             </div>
           </Reveal>

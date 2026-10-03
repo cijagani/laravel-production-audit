@@ -164,7 +164,7 @@ export const sections: Section[] = [
     ],
   },
   {
-    n: 12, title: "Distributed workers", file: "12-distributed-workers.md", when: "more than one worker host",
+    n: 12, title: "Distributed workers", file: "12-distributed-workers.md", when: "multiple worker hosts",
     blurb: "Extra worker servers and containers: shared state, version skew, graceful drain.",
     goal: "Any node can run any job, and any node can be drained safely.",
     checks: [
@@ -222,6 +222,14 @@ export const configs = [
   ".env.production.example", "deploy-cache.sh", "INDEXES_TO_ADD.md",
   "docker-compose.worker.yml",
 ]
+
+// The skill's own severity legend (SKILL.md), shown as the report shows it.
+export const severities = [
+  { glyph: "🔴", label: "Critical", tone: "critical", when: "Fix before go-live", text: "Data leaks, out-of-memory crashes, a blocked request path, jobs that run twice." },
+  { glyph: "🟠", label: "High", tone: "high", when: "Fix this sprint", text: "Real cost on a hot path: N+1 queries, eager shared props, missing timeouts." },
+  { glyph: "🟡", label: "Medium", tone: "medium", when: "Fix this month", text: "Measurable waste off the hot path, or a cache that saves nothing." },
+  { glyph: "✅", label: "Leave as is", tone: "ok", when: "No action", text: "Verified good — listed so nobody “optimizes” it later." },
+] as const
 
 export type Severity = "critical" | "high" | "medium"
 export const glyph: Record<Severity, string> = { critical: "🔴", high: "🟠", medium: "🟡" }

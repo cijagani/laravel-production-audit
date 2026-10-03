@@ -1,33 +1,29 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/space-grotesk";
+@import "@fontsource-variable/archivo/wdth.css";
+@import "@fontsource-variable/ibm-plex-sans/index.css";
 @import "@fontsource/ibm-plex-mono/400.css";
 @import "@fontsource/ibm-plex-mono/500.css";
 @import "@fontsource/ibm-plex-mono/600.css";
 
-@custom-variant dark (&:is(.dark *));
-
 @theme inline {
-    --font-heading: 'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
-    --font-sans: 'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-heading: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: 'IBM Plex Sans Variable', ui-sans-serif, system-ui, sans-serif;
     --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
-    /* Product vocabulary as palette: the audit's own severity glyphs */
+    /* Product vocabulary as palette */
+    --color-ink: var(--ink);
+    --color-graphite: var(--graphite);
+    --color-cobalt: var(--cobalt);
+    --color-marker: var(--marker);
+    --color-paper: var(--paper);
+    --color-rule: var(--rule);
     --color-critical: var(--critical);
     --color-high: var(--high);
     --color-medium: var(--medium);
     --color-ok: var(--ok);
-    --color-steel: var(--steel);
 
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
     --color-ring: var(--ring);
     --color-input: var(--input);
     --color-border: var(--border);
@@ -53,58 +49,74 @@
 }
 
 /*
-  Single dark theme — this is a console/diagnostic tool, it lives in the dark.
-  Ink background, steel-blue primary, and the four severity colors lifted
-  straight from the report glyphs (🔴 🟠 🟡 ✅).
+  Light only. An annotated technical sheet: cool paper, navy ink, graphite
+  for secondary text, cobalt for links. Marker yellow is reserved for one
+  meaning — "this is the line being cited" — and is used nowhere else.
 */
 :root {
-    --background: oklch(0.17 0.012 256);
-    --foreground: oklch(0.93 0.012 250);
-    --card: oklch(0.21 0.014 256);
-    --card-foreground: oklch(0.93 0.012 250);
-    --popover: oklch(0.21 0.014 256);
-    --popover-foreground: oklch(0.93 0.012 250);
-    --primary: oklch(0.72 0.11 235);          /* steel blue */
-    --primary-foreground: oklch(0.17 0.012 256);
-    --secondary: oklch(0.27 0.015 256);
-    --secondary-foreground: oklch(0.93 0.012 250);
-    --muted: oklch(0.27 0.015 256);
-    --muted-foreground: oklch(0.68 0.014 252);
-    --accent: oklch(0.27 0.02 256);
-    --accent-foreground: oklch(0.93 0.012 250);
-    --destructive: oklch(0.64 0.2 22);
-    --border: oklch(0.3 0.014 256);
-    --input: oklch(0.3 0.014 256);
-    --ring: oklch(0.72 0.11 235);
-    --radius: 0.625rem;
+    --paper: #f6f8fb;
+    --ink: #0e1a2b;
+    --graphite: #586477;
+    --cobalt: #2449c6;
+    --marker: #ffe14d;
+    --rule: #dce2ea;
 
-    --critical: oklch(0.66 0.2 22);           /* 🔴 */
-    --high: oklch(0.76 0.14 70);              /* 🟠 */
-    --medium: oklch(0.84 0.13 95);           /* 🟡 */
-    --ok: oklch(0.77 0.16 158);              /* ✅ */
-    --steel: oklch(0.74 0.1 235);
+    --critical: #c8312b;
+    --high: #b45309;
+    --medium: #8a6a00;
+    --ok: #15803d;
 
-    --sidebar: oklch(0.21 0.014 256);
-    --sidebar-foreground: oklch(0.93 0.012 250);
-    --sidebar-primary: oklch(0.72 0.11 235);
-    --sidebar-primary-foreground: oklch(0.17 0.012 256);
-    --sidebar-accent: oklch(0.27 0.015 256);
-    --sidebar-accent-foreground: oklch(0.93 0.012 250);
-    --sidebar-border: oklch(0.3 0.014 256);
-    --sidebar-ring: oklch(0.72 0.11 235);
+    --background: var(--paper);
+    --foreground: var(--ink);
+    --card: #ffffff;
+    --card-foreground: var(--ink);
+    --popover: #ffffff;
+    --popover-foreground: var(--ink);
+    --primary: var(--ink);
+    --primary-foreground: #ffffff;
+    --secondary: #edf1f6;
+    --secondary-foreground: var(--ink);
+    --muted: #edf1f6;
+    --muted-foreground: var(--graphite);
+    --accent: #edf1f6;
+    --accent-foreground: var(--ink);
+    --destructive: var(--critical);
+    --border: var(--rule);
+    --input: var(--rule);
+    --ring: var(--cobalt);
+    --radius: 0.5rem;
+}
+
+/* Wide Archivo for display type — the "engineering drawing" voice. */
+@utility display {
+    font-family: var(--font-heading);
+    font-stretch: 116%;
+    font-weight: 680;
+    letter-spacing: -0.025em;
+}
+
+/* Faint graph paper, only behind the hero. */
+@utility graph-paper {
+    background-color: var(--paper);
+    background-image:
+        linear-gradient(to right, #e6ebf1 1px, transparent 1px),
+        linear-gradient(to bottom, #e6ebf1 1px, transparent 1px);
+    background-size: 28px 28px;
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/60;
   }
   html {
     @apply font-sans;
+    color-scheme: light;
   }
   body {
     @apply bg-background text-foreground antialiased;
   }
   ::selection {
-    background: oklch(0.72 0.11 235 / 0.3);
+    background: var(--marker);
+    color: var(--ink);
   }
 }
