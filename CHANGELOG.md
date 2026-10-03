@@ -3,6 +3,20 @@
 All notable changes to the `laravel-production-audit` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] — 2026-10-03
+
+### Added
+- §0 discovery uses Laravel Boost's read-only MCP tools when the project
+  already has Boost connected: `application-info`, `database-connections`,
+  `database-schema`, `last-error`, `read-log-entries`, `search-docs`.
+  `database-query` is limited to `EXPLAIN` / row counts with the user's
+  agreement; `record-rule` is never called. The plugin does not bundle Boost.
+- Plugin icon (`.claude-plugin/icon.png`).
+
+### Changed
+- Redis guidance and `.env.production.example` no longer name the Redis auth
+  key; the advice (keep the stock connection keys) is unchanged.
+
 ## [1.1.0] — 2026-10-03
 
 Re-checked against the Laravel 13, Horizon 5, Inertia v3, and Livewire 4 docs and source.

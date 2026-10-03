@@ -21,6 +21,34 @@ it's already here.
 > somewhere and doesn't (e.g. no scheduling anywhere). An empty `app/Jobs/` in a
 > new skeleton is just `0 jobs`, not a problem.
 
+## Laravel Boost — use it when it's connected
+
+If the project has [Laravel Boost](https://laravel.com/docs/boost) and its MCP
+server is connected (tools named `application-info`, `database-schema`, …),
+use the read-only tools below alongside the reads that follow. They report the
+running app, so they settle what lockfiles and migrations only suggest. A Boost
+result confirms a finding; the `file:line` you cite is still the evidence.
+
+| Boost tool | Use it for |
+|---|---|
+| `application-info` | PHP / Laravel versions, DB engine, ecosystem packages with versions, Eloquent models → Discovery Log |
+| `database-connections` | Which connections exist and which is the default |
+| `database-schema` | Real tables, columns, indexes, FKs → §6.4 (migrations can drift from the schema) |
+| `last-error`, `read-log-entries` | Recent memory-exhausted, timeout, `MaxAttemptsExceededException`, deadlock errors → severity evidence for §2, §4, §10 |
+| `search-docs` | Confirm a version-specific API exists before you recommend it |
+
+- Boost runs against the environment Claude is in, usually local dev. Label
+  schema and log evidence as such; it is not production.
+- `database-query`: only `EXPLAIN` or a row count for a hot-path query in §6,
+  and only after the user agrees. Never a write.
+- Never call `record-rule` — it writes into the project (operating rule 8).
+- `search-docs` sends its query to Laravel's hosted docs service: put a topic
+  in it ("Horizon balance strategies"), never code, log lines, or app data.
+- From logs, report error class, message, and count. Don't copy request
+  payloads or user data into the report.
+- Not connected? Skip this section; the reads below cover the same ground.
+  Don't install Boost or ask the user to.
+
 ## Reads
 
 ```

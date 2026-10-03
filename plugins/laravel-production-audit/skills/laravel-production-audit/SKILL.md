@@ -85,7 +85,8 @@ load only what you're working on — read the file when you reach that step.
 
 1. **Discovery pass** — `references/00-discovery.md`. Mandatory first pass:
    confirm versions, drivers, tenancy, Horizon/Octane presence, and catalog the
-   jobs / commands / middleware / HTTP-call sites you'll audit. Keep a running
+   jobs / commands / middleware / HTTP-call sites you'll audit. If Laravel
+   Boost's MCP tools are connected, use them as §0 describes. Keep a running
    "Discovery Log" as you go. End discovery with a **hot-path map** (the
    handful of routes, jobs, and scheduled tasks that run most often or move the
    most data) and trace each end to end. Spend the audit's effort there: a

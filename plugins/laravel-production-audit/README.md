@@ -40,6 +40,12 @@ ask for a single section. See `skills/laravel-production-audit/HELP.md`.
 - **Sends nothing anywhere.** The plugin contains only Markdown instructions
   and text templates: no hooks, no MCP servers, no scripts, no network calls,
   and no credentials.
+- **Uses Laravel Boost if your project already has it.** When Boost's MCP
+  server is connected, discovery uses its read-only tools (app info, database
+  schema, recent log errors, docs search) to confirm versions and indexes.
+  Boost's docs search sends a topic query to Laravel's docs service; the audit
+  never puts your code or data in it. The plugin doesn't install or bundle
+  Boost.
 - **The config templates are text, never executed.** They are starting points
   for your app's own config files. Where your app's config needs a setting
   from its environment, the audit tells you which key to keep; the plugin
