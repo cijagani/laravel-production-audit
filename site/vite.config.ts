@@ -24,6 +24,7 @@ export default defineConfig({
         home: path.resolve(__dirname, "index.html"),
         sections: path.resolve(__dirname, "sections.html"),
         changelog: path.resolve(__dirname, "changelog.html"),
+        legal: path.resolve(__dirname, "legal.html"),
       },
     },
   },

@@ -1,0 +1,1 @@
+import{M as e,b as t}from"./mount-SagEgEe2.js";var n=e();function r({children:e,delay:r=0,className:i}){return(0,n.jsx)(t.div,{className:i,initial:{opacity:0,y:12},whileInView:{opacity:1,y:0},viewport:{once:!0,margin:`0px 0px -80px 0px`},transition:{duration:.5,delay:r,ease:[.22,1,.36,1]},children:e})}export{r as t};

@@ -4,7 +4,7 @@ import { ArrowUpRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MARKETPLACE, REPO_URL, RELEASES_URL, VERSION } from "@/content"
 
-export type Page = "home" | "sections" | "changelog"
+export type Page = "home" | "sections" | "changelog" | "legal"
 
 // Relative links: every page sits next to the others under the Pages base path.
 const nav: { page: Page; label: string; href: string }[] = [
@@ -90,6 +90,7 @@ export function Shell({ page, children }: { page: Page; children: ReactNode }) {
               <a href="sections.html" className="hover:text-ink">Sections</a>
               <a href="changelog.html" className="hover:text-ink">Changelog</a>
               <a href={RELEASES_URL} className="hover:text-ink">Releases</a>
+              <a href="legal.html" className="hover:text-ink">Privacy &amp; terms</a>
               <a href={REPO_URL} className="hover:text-ink">GitHub</a>
             </div>
           </div>

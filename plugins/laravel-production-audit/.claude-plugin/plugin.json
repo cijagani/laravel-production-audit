@@ -7,6 +7,27 @@
     "email": "admin@corbitaltechnologies.com"
   },
   "homepage": "https://cijagani.github.io/laravel-production-audit/",
+  "documentationUrl": "https://cijagani.github.io/laravel-production-audit/sections.html",
+  "supportUrl": "https://github.com/cijagani/laravel-production-audit/issues",
+  "privacyPolicyUrl": "https://cijagani.github.io/laravel-production-audit/legal.html#privacy",
+  "termsOfServiceUrl": "https://cijagani.github.io/laravel-production-audit/legal.html#terms",
   "repository": "https://github.com/cijagani/laravel-production-audit",
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": [
+    "laravel",
+    "php",
+    "performance",
+    "production-readiness",
+    "audit",
+    "horizon",
+    "queues",
+    "redis",
+    "php-fpm",
+    "opcache",
+    "supervisor",
+    "postgresql",
+    "pgbouncer",
+    "livewire",
+    "inertia"
+  ]
 }

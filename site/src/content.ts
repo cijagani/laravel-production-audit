@@ -1,6 +1,6 @@
 // All page copy and data in one place, so the JSX stays structural.
 
-export const VERSION = "1.1.0"
+export const VERSION = "1.2.0"
 export const REPO = "cijagani/laravel-production-audit"
 export const REPO_URL = `https://github.com/${REPO}`
 export const MARKETPLACE = "laravel-production-audit"
