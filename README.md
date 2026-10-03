@@ -1,4 +1,4 @@
-# Corbital Laravel Plugins — Claude Code Marketplace
+# laravel-production-audit — Claude Code plugin marketplace
 
 A [Claude Code](https://claude.com/claude-code) plugin marketplace for Laravel
 development, performance, and operations. Currently ships one plugin:
@@ -19,20 +19,21 @@ citing `file:line`) and a `PERF_CONFIGS/` folder of complete config files.
 In Claude Code:
 
 ```
-/plugin marketplace add cijagani/laravel-perf-audit-marketplace
-/plugin install laravel-production-audit@corbital-laravel-plugins
+/plugin marketplace add cijagani/laravel-production-audit
+/plugin install laravel-production-audit@laravel-production-audit
 ```
 
 Or via the CLI:
 
 ```bash
-claude plugin marketplace add cijagani/laravel-perf-audit-marketplace
-claude plugin install laravel-production-audit@corbital-laravel-plugins
+claude plugin marketplace add cijagani/laravel-production-audit
+claude plugin install laravel-production-audit@laravel-production-audit
 ```
 
-> `cijagani/laravel-perf-audit-marketplace` is the GitHub repo; `corbital-laravel-plugins`
-> (after the `@`) is the marketplace name from `.claude-plugin/marketplace.json`.
-> They're different on purpose — the marketplace name doesn't change if the repo moves.
+> **Installed it under the old name?** The marketplace used to be called
+> `corbital-laravel-plugins`, at `cijagani/laravel-perf-audit-marketplace`.
+> Switch with `/plugin marketplace remove corbital-laravel-plugins`, then run the
+> two commands above.
 
 ## Use
 
@@ -52,7 +53,7 @@ example of the output before you install.
 ## What's inside
 
 ```
-laravel-perf-audit-marketplace/
+laravel-production-audit/
 ├── .claude-plugin/
 │   └── marketplace.json
 └── plugins/
@@ -70,7 +71,7 @@ laravel-perf-audit-marketplace/
 ## Homepage
 
 The landing page is served via GitHub Pages at
-<https://cijagani.github.io/laravel-perf-audit-marketplace/>. The built output lives in
+<https://cijagani.github.io/laravel-production-audit/>. The built output lives in
 [`docs/`](docs/); the source is a Vite + React + Tailwind + shadcn/ui + Motion project in
 [`site/`](site/) (see [`site/README.md`](site/README.md) to rebuild).
 

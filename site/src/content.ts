@@ -1,9 +1,9 @@
 // All page copy and data in one place, so the JSX stays structural.
 
 export const VERSION = "1.1.0"
-export const REPO = "cijagani/laravel-perf-audit-marketplace"
+export const REPO = "cijagani/laravel-production-audit"
 export const REPO_URL = `https://github.com/${REPO}`
-export const MARKETPLACE = "corbital-laravel-plugins"
+export const MARKETPLACE = "laravel-production-audit"
 export const PLUGIN = "laravel-production-audit"
 const REF_URL = `${REPO_URL}/blob/main/plugins/${PLUGIN}/skills/${PLUGIN}/references`
 export const SAMPLE_URL = `${REPO_URL}/blob/main/docs/SAMPLE_REPORT.md`

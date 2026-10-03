@@ -1,6 +1,6 @@
 {
-  "name": "corbital-laravel-plugins",
-  "description": "Corbital's Claude Code plugins for Laravel development, performance, and operations.",
+  "name": "laravel-production-audit",
+  "description": "Production-readiness audit for Laravel apps: findings that cite file:line, plus ready-to-use production config.",
   "owner": {
     "name": "Corbital Technologies",
     "email": "admin@corbitaltechnologies.com"
@@ -13,7 +13,7 @@
       "author": {
         "name": "Corbital Technologies"
       },
-      "homepage": "https://cijagani.github.io/laravel-perf-audit-marketplace/",
+      "homepage": "https://cijagani.github.io/laravel-production-audit/",
       "license": "MIT"
     }
   ]
