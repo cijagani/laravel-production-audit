@@ -18,8 +18,8 @@ monitored independently.
 ## `config/database.php` Redis changes
 
 Edit the app's existing `redis` array — don't replace it. Laravel 13's stock
-config already has the connection keys (`url`, `host`, `username`, `password`,
-`port`, `max_retries`, `backoff_*`); leave them exactly as they are. Only the
+config already has the connection keys (`url`, `host`, `port` and the rest,
+plus `max_retries` and `backoff_*`); leave them exactly as they are. Only the
 keys below change, plus one new `session` connection.
 
 ```php
@@ -50,9 +50,9 @@ keys below change, plus one new `session` connection.
 ],
 ```
 
-Common mistake this avoids: a hand-written Redis stanza that drops the stock
-`password` and retry keys connects fine on a laptop and then fails against an
-auth-protected production Redis.
+Common mistake this avoids: a hand-written Redis stanza that drops stock
+connection and retry keys connects fine on a laptop and then fails against a
+protected production Redis.
 
 And in `.env`: `SESSION_CONNECTION=session` — without it the session driver
 uses the `default` (queue) connection regardless of the stanza above.

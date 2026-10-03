@@ -62,10 +62,10 @@ memory leak with extra steps.
   `FLUSHDB`s the cache connection's DB) from wiping queued jobs. It does **not**
   give each DB its own eviction policy — see 5.5.
 - Hand-written Redis stanza dropped the stock keys? 🟡 — Laravel 13's
-  `database.php` ships `username`, `password`, `max_retries`,
+  `database.php` ships the full set of connection keys plus `max_retries`,
   `backoff_algorithm`, `backoff_base`, `backoff_cap` on each connection. A
-  custom stanza without `password` fails against an auth-protected Redis;
-  without the retry keys it loses reconnect-with-backoff.
+  custom stanza that drops any of the stock connection keys fails against a
+  protected Redis; without the retry keys it loses reconnect-with-backoff.
 - Redis Cluster in use? Cluster only supports DB 0, so DB separation becomes
   prefix separation — and Horizon "is not compatible with Redis Cluster"
   (Horizon docs) 🔴 if both are configured.
