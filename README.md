@@ -63,8 +63,8 @@ corbital-laravel-plugins/
             └── laravel-production-audit/
                 ├── SKILL.md        ← agent-facing instructions
                 ├── HELP.md         ← human usage guide
-                ├── references/     ← 12 self-contained audit sections + output contract
-                └── assets/PERF_CONFIGS/  ← 11 annotated config templates
+                ├── references/     ← 15 self-contained audit sections + output contract
+                └── assets/PERF_CONFIGS/  ← 12 annotated config templates
 ```
 
 ## Homepage

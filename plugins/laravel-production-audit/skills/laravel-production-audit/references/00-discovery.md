@@ -45,6 +45,9 @@ READ:  app/Console/Commands/          → all artisan commands
 READ:  app/Console/Kernel.php         → schedule() definitions (or bootstrap/schedule.php)
 READ:  app/Http/Middleware/           → all middleware files
 READ:  app/Models/                    → all Eloquent models (relations, scopes, casts)
+READ:  Dockerfile*, docker-compose*.yml, compose*.yaml, k8s/ or helm/ manifests
+                                      → containerized workers? (triggers §12)
+READ:  deploy scripts / CI workflows  → how workers restart; how many hosts run them
 ```
 
 ## Globs
@@ -84,6 +87,18 @@ SEARCH: "->paginate|->simplePaginate|->cursorPaginate"
 SEARCH: "->select(|->addSelect("      → column selection (SELECT * risk)
 SEARCH: "withCount|withSum|withAvg"   → aggregate eager loads
 SEARCH: "unique()|duplicates()"       → in-memory collection dedup (memory risk)
+SEARCH: "#\[(Tries|Timeout|Backoff|MaxExceptions|UniqueFor|DebounceFor|FailOnTimeout)"
+                                      → L13 job attributes (count as configured)
+SEARCH: "Queue::route|Queue::forward" → central job→queue routing (L13)
+SEARCH: "afterCommit|after_commit"    → transaction-safe dispatch
+SEARCH: "storage_path(|Storage::disk(" → local-disk state (matters with >1 worker host)
+SEARCH: "withoutInterruptionPolling|\$restartable|\$pausable" → workers deaf to restart
+SEARCH: "protected \$with |protected \$appends|addGlobalScope|\$touches" → hidden per-model work
+SEARCH: "->get()->(count|sum|avg|groupBy|filter|where|unique)" → PHP-side aggregation
+SEARCH: "lockForUpdate|sharedLock|pg_advisory|SET search_path|DB::statement\('SET" → locks / session state (PgBouncer)
+SEARCH: "->timeout(|->retry(|Http::pool"  → outbound HTTP resilience
+SEARCH: "static \$|->singleton("          → state that outlives a job
+SEARCH: "wire:poll|wire:model.live|#\[Computed|Inertia::share|function share(" → UI request cost
 ```
 
 ## Discovery Log — record these before moving on
@@ -100,6 +115,22 @@ SEARCH: "unique()|duplicates()"       → in-memory collection dedup (memory ris
 - Total scheduled commands count
 - Total middleware count
 - Any blocking HTTP-call locations (file + line)
+- `retry_after` on each queue connection (needed for the §2.2 timeout chain)
+- **Worker topology:** single host / multiple hosts / containers — and which
+  queues each runs. If the repo doesn't show it, ask; "do any queue workers run
+  on a different machine or in containers?" is one question.
 
-If §0 finds **no tenancy package**, skip §11 entirely. Everything else runs
-regardless.
+- Frontend stack: Livewire (version) / Inertia server + client versions
+  (`composer.lock` + JS lockfile; Vue or React) / Blade only / API only
+- **Hot-path map** — the routes, jobs, and scheduled tasks that matter most.
+  Find them from route files + controllers (what every page/API call hits:
+  auth, shared props, dashboards, list endpoints), dispatch sites inside loops,
+  scheduler frequency, and webhook/inbound-API endpoints. If production
+  metrics exist (Horizon, Pulse, APM, slow-query log), ask for them; otherwise
+  infer and say so. For each, trace the full path: route → middleware →
+  controller → services → models (with their `$with`/observers/accessors) →
+  jobs dispatched → what those jobs do.
+
+If §0 finds **no tenancy package**, skip §11 entirely. If neither Livewire nor
+Inertia is installed, skip §13/§14 (§13 = Livewire, §14 = Inertia). If workers run on **one
+host, not in containers**, skip §12. Everything else runs regardless.

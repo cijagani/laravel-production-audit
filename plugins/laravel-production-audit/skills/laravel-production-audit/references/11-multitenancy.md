@@ -24,6 +24,25 @@ tenant prefix is both a slow query and a data leak.
 
 - Jobs tagged/routed per tenant so one tenant can't starve others? 🟠
 - A per-tenant rate limit on job dispatch? 🟡
+- **Noisy neighbour:** can one large tenant's bulk action (import, campaign,
+  export) fill the shared queue so every other tenant's emails/notifications
+  wait behind it? Model it from the fan-out size in §2.1. 🟠 if yes. Fix in
+  proportion: bulk work on its own queue/supervisor with a capped
+  `maxProcesses`, and a per-tenant concurrency limit (`WithoutOverlapping`
+  keyed by tenant, or `RateLimited` with a tenant-keyed limiter). Per-tenant
+  queues are only justified for a few very large tenants.
+- Tenant context in the job payload and restored before `handle()` —
+  never read from a singleton left behind by the previous job (§4.6) 🔴
+
+## 11.3b Tenant data access
+
+- Tenant-scoped tables whose hot queries filter `tenant_id` but whose index
+  doesn't **lead** with `tenant_id` 🟠 (§6.4)
+- Queries without the tenant filter on tenant tables — admin/report/command
+  code bypassing the global scope with `withoutGlobalScopes()` 🔴 (leak) or
+  scanning all tenants when one was meant 🟠
+- Schema-per-tenant on PostgreSQL behind PgBouncer transaction pooling 🔴 —
+  `search_path` leaks between clients (§6.7)
 
 ## 11.4 Scheduled tasks in MT context
 

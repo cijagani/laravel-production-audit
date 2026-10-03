@@ -19,6 +19,16 @@ For each entry:
 - [ ] Cron entry present? `* * * * * php artisan schedule:run >> /dev/null 2>&1`
       — check for double-scheduling or a missing entry. 🔴 if missing entirely.
 
+Then build **one row per task** — this table goes in the report:
+
+| Task | Frequency | Work per run | Typical duration | Overlap risk | DB impact | Redis impact | Jobs dispatched |
+|---|---|---|---|---|---|---|---|
+
+Duration close to (or above) frequency means it never catches up 🔴. A task
+that scans the **whole table every run** to find a few new rows 🟠 → process
+incrementally from a checkpoint (last processed ID / timestamp stored in
+cache or a table) with `chunkById`.
+
 ## 3.2 Artisan commands used in the schedule
 
 For each Command in `app/Console/Commands/`:
@@ -36,6 +46,23 @@ For each Command in `app/Console/Commands/`:
   (not the old `CACHE_DRIVER`). `redis` and `database` both provide atomic locks;
   `file`/`array` do **not** — those break `onOneServer()`.
 - `cache.lock_store` points to an atomic store (redis or database, not file/array)? 🟠
+- Every server points at the **same** central cache server? 🔴 if not — Laravel
+  docs require it for `withoutOverlapping()` and `onOneServer()`; per-host
+  Redis means each host takes its own lock and the task runs N times.
+- Worker-only nodes (extra queue servers, worker containers) also running
+  `schedule:run`? 🟠 — run the scheduler on one designated host (or rely on
+  `onOneServer()` for every task, not just some).
+
+## 3.4 Housekeeping tasks that should be scheduled
+
+Check the schedule for these; each missing one is 🟡 (cross-ref §2):
+
+- `horizon:snapshot` every five minutes (if Horizon) — metrics are empty without it
+- `queue:prune-failed --hours=…` daily
+- `queue:prune-batches --hours=48 --unfinished=72 --cancelled=72` daily (if batches used)
+- `queue:monitor <conn:queue>,… --max=N` every minute, unless Horizon `waits`
+  notifications cover alerting
+- `model:prune` daily, if any model uses `Prunable` / `MassPrunable`
 
 ## Output for §3
 

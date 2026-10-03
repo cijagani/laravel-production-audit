@@ -35,7 +35,7 @@ that's the target. If not, name the path:
 
 | Deliverable | What it is |
 |---|---|
-| `PERF_AUDIT_REPORT.md` | Findings grouped by severity (🔴/🟠/🟡/✅), every one citing `file:line`, plus a section-by-section breakdown. |
+| `PERF_AUDIT_REPORT.md` | Hot-path map, findings grouped by severity (🔴/🟠/🟡/✅) each citing `file:line` (🔴/🟠 with cost, expected gain, risk, and benchmark), section-by-section breakdown, phased roadmap, and benchmark plan. |
 | `PERF_CONFIGS/` | A folder of complete, production-ready config files (`horizon.php`, `php-fpm-www.conf`, `opcache.ini`, `nginx-performance.conf`, `supervisor-laravel.conf`, `.env.production.example`, `deploy-cache.sh`, `INDEXES_TO_ADD.md`, …) populated from the findings. |
 
 **Tip — keep the audit out of the repo.** If you don't want the report written
@@ -89,6 +89,9 @@ Or even more directly:
 | `references/09-app-config.md` | config/route/view caching, providers, debug, HTTP cache |
 | `references/10-concurrency.md` | dedup, race conditions, atomic ops |
 | `references/11-multitenancy.md` | per-tenant cache/queue isolation **(only meaningful if the app is multi-tenant)** |
+| `references/12-distributed-workers.md` | workers on extra servers or in containers: shared state, version skew, timeout chain, graceful node drain **(only meaningful with >1 worker host or containers)** |
+| `references/13-livewire.md` | per-request cost of Livewire components: computed vs public properties, polling, lazy loading **(only if Livewire is installed)** |
+| `references/14-inertia.md` | Inertia v3 `HandleInertiaRequests` middleware, eager vs closure/once/deferred props, payload size, request count (polls, prefetch, deferred groups), SSR, Vue/React bundle and rendering **(only if Inertia is installed)** |
 
 > **One dependency to know about:** the per-section files assume the facts from
 > `00-discovery.md` (Laravel version, queue driver, whether Horizon/tenancy
@@ -119,10 +122,11 @@ grab one directly without running any audit:
 | `opcache.ini` | OPcache settings (PHP 8.4, JIT) |
 | `supervisor-laravel.conf` | Supervisor blocks for Horizon / `queue:work` / Reverb + cron |
 | `nginx-performance.conf` | Nginx server block: gzip, cache headers, static bypass |
-| `redis-separation.md` | Redis logical-DB separation + `config/database.php` stanza |
+| `redis-separation.md` | Redis logical-DB separation, `config/database.php` stanza, `maxmemory-policy` |
 | `.env.production.example` | Hardened production env keys |
 | `deploy-cache.sh` | Deploy-time artisan cache warmup in the correct order |
 | `INDEXES_TO_ADD.md` | Migration stubs for missing indexes |
+| `docker-compose.worker.yml` | Worker-only node service (pinned tag, grace period, limits, host-scoped healthcheck) |
 
 > These are **templates**, not final files — they contain placeholders like
 > `<PROJECT NAME>`, `<DATE>`, and assumed hardware values (2 GB / 2 cores). Always

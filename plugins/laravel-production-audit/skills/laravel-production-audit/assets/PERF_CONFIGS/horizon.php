@@ -10,6 +10,15 @@
 | numbers below assume a SMALL box (≈2GB RAM). Each PHP worker is ≈50–80MB RSS,
 | so maxProcesses across all supervisors must satisfy:
 |     sum(maxProcesses) * 80MB  <  available_RAM - (php-fpm pool + system)
+|
+| Timeout chain — every supervisor 'timeout' must sit inside it (§2.2):
+|     longest job $timeout  <  'timeout'  <  queue.php retry_after (-several s)  <  stopwaitsecs
+| Stock retry_after is 90, so with it a supervisor timeout must stay <= ~80.
+| Longer jobs → raise REDIS_QUEUE_RETRY_AFTER (or give them their own
+| queue connection with a bigger retry_after) — never just raise 'timeout'.
+|
+| Priority: with balance 'auto' the order of the 'queue' array is IGNORED.
+| Priority comes from separate supervisors with their own maxProcesses.
 */
 
 use Illuminate\Support\Str;
@@ -45,7 +54,11 @@ return [
     ],
 
     'fast_termination' => false,
-    'memory_limit' => 64,               // reason: per-worker MB cap; lower than the 128 default for a small box
+    'memory_limit' => 64,               // reason: MASTER supervisor's MB cap (not workers — those use 'memory' below)
+
+    // reason: lets an extra worker node pick its own `environments` block
+    // (HORIZON_ENV=burst) without changing APP_ENV. Unset = APP_ENV. See §12.7.
+    'env' => env('HORIZON_ENV'),
 
     'defaults' => [
         'supervisor-1' => [
@@ -55,18 +68,19 @@ return [
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 3,        // reason: 3 * 80MB ≈ 240MB ceiling for this supervisor
             'minProcesses' => 1,
-            'maxTime' => 0,
-            'maxJobs' => 0,
+            'maxTime' => 3600,          // reason: recycle workers hourly — contains slow leaks (Horizon docs)
+            'maxJobs' => 1000,          // reason: …or after 1000 jobs, whichever comes first
             'memory' => 64,             // reason: restart worker if it exceeds 64MB — prevents leak growth
             'tries' => 3,
-            'timeout' => 60,            // reason: must be >= the longest job $timeout (see §2 findings)
+            'timeout' => 60,            // reason: > longest job $timeout AND < retry_after (90) — see header
             'nice' => 0,
         ],
     ],
 
     'environments' => [
         'production' => [
-            // Order queues high-priority first. Pull real queue names from §2.
+            // One supervisor per priority tier — under 'auto', array order inside
+            // 'queue' does NOT set priority. Pull real queue names from §2.
             'supervisor-high' => [
                 'connection' => 'redis',
                 'queue' => ['high'],
@@ -86,10 +100,27 @@ return [
                 'maxProcesses' => 3,
                 'memory' => 64,
                 'tries' => 3,
-                'timeout' => 120,
+                'timeout' => 80,        // reason: max that still fits under retry_after 90; raise both together
                 'nice' => 10,           // reason: deprioritize background/batch work behind 'high'
             ],
         ],
+
+        // Only if an extra worker node exists (§12.7). That node sets
+        // HORIZON_ENV=burst and keeps APP_ENV=production. It drains bulk queues
+        // only, so latency-critical work stays near the database.
+        // 'burst' => [
+        //     'supervisor-bulk' => [
+        //         'connection' => 'redis',
+        //         'queue' => ['heavy', 'reports'],
+        //         'balance' => 'auto',
+        //         'minProcesses' => 1,
+        //         'maxProcesses' => 4,   // reason: <RECOMPUTE> from that node's RAM/CPU, not this box's
+        //         'memory' => 128,
+        //         'tries' => 3,
+        //         'timeout' => 80,
+        //         'nice' => 10,
+        //     ],
+        // ],
 
         'local' => [
             'supervisor-1' => [

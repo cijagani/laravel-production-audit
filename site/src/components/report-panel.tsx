@@ -28,7 +28,7 @@ export function ReportPanel() {
       <div className="space-y-2.5 px-5 py-5 font-mono text-[13px] leading-relaxed">
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground">
           <span>
-            <span className="text-critical">2</span> critical
+            <span className="text-critical">3</span> critical
           </span>
           <span>
             <span className="text-high">3</span> high

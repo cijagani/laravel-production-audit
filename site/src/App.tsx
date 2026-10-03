@@ -76,20 +76,26 @@ export default function App() {
       {/* ── Sections (§) ─────────────────────────────────── */}
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-6 py-20">
-          <Eyebrow>11 sections · run all, or just one</Eyebrow>
+          <Eyebrow>{sections.length} sections · run all, or just one</Eyebrow>
           <h2 className="max-w-2xl font-heading text-3xl font-semibold tracking-tight">
             Every layer a production Laravel app gets wrong
           </h2>
           <p className="mt-3 max-w-xl text-muted-foreground">
             The § numbers are the actual workflow. Each section is a
-            self-contained checklist you can run on its own.
+            self-contained checklist you can run on its own. Tagged sections
+            only run when discovery finds what they audit.
           </p>
 
           <div className="mt-12 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
             {sections.map((s) => (
               <div key={s.n} className="bg-card p-6 transition hover:bg-accent/40">
-                <div className="mb-3 font-mono text-sm text-steel">
+                <div className="mb-3 flex items-center justify-between gap-2 font-mono text-sm text-steel">
                   §{s.n.toString().padStart(2, "0")}
+                  {s.when && (
+                    <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                      if {s.when}
+                    </span>
+                  )}
                 </div>
                 <h3 className="font-heading text-lg font-medium">{s.title}</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
@@ -97,7 +103,7 @@ export default function App() {
                 </p>
               </div>
             ))}
-            <div className="flex items-center justify-center bg-card/40 p-6 text-center">
+            <div className="flex items-center justify-center bg-card/40 p-6 text-center sm:col-span-2 lg:col-span-1">
               <span className="text-sm text-muted-foreground">
                 Read first.
                 <br />
@@ -159,16 +165,19 @@ export default function App() {
                 PERF_AUDIT_REPORT.md
               </div>
               <p className="mt-3 text-muted-foreground">
-                Findings grouped by severity, each citing a real{" "}
-                <span className="font-mono text-sm text-foreground">file:line</span>,
-                then a section-by-section breakdown.
+                A hot-path map, then findings grouped by severity, each citing a
+                real{" "}
+                <span className="font-mono text-sm text-foreground">file:line</span>.
+                Critical and high findings show what the code does now, what it
+                costs, the fix, expected gain, risk, and what to benchmark. Ends
+                with a phased roadmap and a benchmark plan.
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
                 {[
                   ["🔴 Critical", "text-critical"],
                   ["🟠 High", "text-high"],
                   ["🟡 Medium", "text-medium"],
-                  ["✅ OK", "text-ok"],
+                  ["✅ Leave as is", "text-ok"],
                 ].map(([label, tone]) => (
                   <span
                     key={label}
@@ -214,7 +223,8 @@ export default function App() {
           </h2>
           <p className="mt-3 max-w-xl text-muted-foreground">
             Not a vibe. A queue that no worker drains, found by reading the
-            event class and the worker config — and cross-referenced.
+            event class and the worker config. A timeout that outlives
+            retry_after, with its cost, fix, risk, and the number to watch.
           </p>
           <Card className="mt-10 overflow-hidden border-border bg-card p-0">
             <pre className="overflow-x-auto p-6 font-mono text-[13px] leading-relaxed">
@@ -225,11 +235,22 @@ export default function App() {
    drains 'default' → broadcasts silently never fire.
    `}<span className="text-muted-foreground">fix: add 'broadcasts' to the worker / Horizon supervisor</span>{`
 
-## Already Good (✅)
+#### Long jobs run twice — `}<span className="text-critical">🔴</span>{` deploy/supervisor/worker.conf:4
+- Now:       queue:work --timeout=120; config/queue.php retry_after 90
+- Cost:      ExportInvoices (~100s) is handed to a 2nd worker at 90s
+             → duplicate exports + 2× DB load on the hot path
+- Change:    --timeout=80 here; run exports on a 'long' connection
+             (retry_after 330) with a worker using --timeout=300
+- Gain:      zero duplicate runs of jobs longer than 90s
+- Risk:      exports >300s now time out — check Horizon runtime first
+- Benchmark: duplicate ExportInvoices per day; p95 job runtime
+
+## Leave As Is (✅)
 
 `}<span className="text-ok">✅</span>{` Redis split into logical DBs — a cache flush
    can't drop the queue.
-`}<span className="text-ok">✅</span>{` phpredis (C ext) + persistent connections enabled.`}
+`}<span className="text-ok">✅</span>{` UserTableController: whitelisted sorts + capped per_page.
+   Looks over-engineered; it's what keeps the query indexed.`}
             </pre>
           </Card>
         </div>

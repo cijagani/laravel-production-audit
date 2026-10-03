@@ -42,6 +42,22 @@ For every `->get()`, `->all()`, `Model::all()`:
   missing — workers can grow unboundedly without restart.
 - Horizon `memory` limit per worker explicitly set in `horizon.php`? 🟠 if missing
 
+## 4.6 State that outlives a job (long-running workers)
+
+A queue worker boots once and runs thousands of jobs; anything that
+accumulates across jobs is a slow leak that `memory` limits only hide:
+
+- `static` arrays/properties used as caches that are written per job and never
+  cleared 🟠
+- `$this->app->singleton(...)` services that collect per-job data (buffers,
+  loaded models, tenant context) 🟠 — `scoped()` bindings are flushed when the
+  worker starts a new job (Laravel docs); singletons are not. Stale tenant
+  context left in a singleton is also a data-leak risk (§11) 🔴
+- Event listeners / macros registered inside `handle()` (registered again on
+  every job) 🟠
+- Query log enabled in workers (`DB::enableQueryLog()`) 🔴 — grows with every
+  query until the worker dies
+
 ## Output for §4
 
 - Memory risk table (location | risk | severity | fix)

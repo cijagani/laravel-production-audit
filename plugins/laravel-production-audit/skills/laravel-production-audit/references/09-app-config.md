@@ -32,7 +32,7 @@ Read every provider's `boot()` and `register()`:
 > on every request is 🔴; a cached settings lookup is 🟡 at most (note the cache
 > dependency) or ✅. Rating it 🔴 without reading the cache layer is exactly the
 > "no assumption" rule failing. The same applies to `HandleInertiaRequests::share()`
-> and other per-request hooks in §1.
+> (audited in full in §14) and other per-request hooks in §1.
 
 ## 9.3 Debug & logging
 
@@ -49,6 +49,25 @@ Read every provider's `boot()` and `register()`:
 - Heavy read API endpoints using `Cache::remember()` with a TTL? 🟡
 - `ETag` / `Last-Modified` on cacheable endpoints? 🟡
 
+## 9.5 Package overhead
+
+Read `composer.json` `require` (not `require-dev`) and check each package's
+real runtime cost — verify usage with a search before calling anything unused:
+
+- Telescope enabled in production with broad watchers 🔴 — it writes DB rows
+  for requests, queries, jobs, and cache hits on every request. Laravel Pulse /
+  Nightwatch sample instead; if Telescope must stay, filter hard and prune.
+- Debugbar / Clockwork / Ray in `require` (not `require-dev`) or enabled by
+  config in production 🔴
+- A package registering **global** middleware, observers, or listeners on hot
+  models that the app doesn't need 🟠 — opt out via its config, or
+  `extra.laravel.dont-discover` in `composer.json`
+- A package with zero usages in `app/`, `config/`, `routes/`, `resources/` 🟡 —
+  its provider still boots on every request. Confirm before recommending
+  removal; some are used only from config or Blade.
+- Two packages doing the same job, or a package for something Laravel now
+  ships (e.g. HTTP retries, rate limiting, `Concurrency`, `defer()`) 🟡
+
 ## Output for §9
 
 - Finding table per item
@@ -56,5 +75,19 @@ Read every provider's `boot()` and `register()`:
 - Prescribe a `deploy.sh` snippet. On Laravel 13 a single `php artisan optimize`
   rebuilds config + route + view + event caches, so prefer that one command over
   running the four individually (running both just caches everything twice).
-  Order: `optimize:clear` (drop stale caches) → `optimize` (rebuild) → restart
+  Order: `optimize` (rebuild — it overwrites the old cache files) → restart
   workers so they pick up new code.
+
+> **Don't put a bare `optimize:clear` in a deploy.** It runs `cache:clear` too —
+> Laravel docs: it removes the cached files "as well as all keys in the default
+> cache driver". Every deploy then flushes the application cache (cold-cache
+> stampede on the DB right after release), plus unique-job locks, rate-limiter
+> counters and `onOneServer` locks — and, if cache shares a Redis DB with the
+> queue, the queued jobs. 🟠 if found in a deploy script (🔴 if cache and queue
+> share a DB). If a clear step is really wanted:
+> `php artisan optimize:clear --except=cache`.
+
+- `php artisan reload` runs `queue:restart` plus the reload hooks of packages
+  like Reverb/Octane in one command — fine to use. Multi-node:
+  `horizon:terminate` only terminates Horizon on the host it runs on; other
+  worker hosts must restart their own Horizon (§12.3).

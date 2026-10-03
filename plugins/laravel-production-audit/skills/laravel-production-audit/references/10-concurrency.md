@@ -9,7 +9,21 @@ under load — exactly when you can least afford them.
 - `ShouldBeUnique` on jobs that must run once per model/ID? 🔴 if missing on
   obvious cases
 - `uniqueId()` returning a meaningful key? 🟠 if generic
-- `uniqueFor()` set to an appropriate TTL? 🟡
+- `uniqueFor()` / `#[UniqueFor]` set to an appropriate TTL? 🟡 — without one, a
+  worker crash can leave the lock held until it's manually cleared.
+- Right tool for the job? 🟡 if mismatched:
+  - `ShouldBeUnique` — don't even *queue* a duplicate while one is pending/running
+  - `ShouldBeUniqueUntilProcessing` — allow a new one to queue once processing starts
+  - `WithoutOverlapping($key)` job middleware — queue freely, never *run* two at
+    once for the same key (add `->expireAfter()` so a crashed worker can't hold
+    the lock forever)
+  - `#[DebounceFor(30)]` (L13) — burst of dispatches, only the **latest** runs
+    (search reindex, cache rebuild). Mutually exclusive with `ShouldBeUnique`.
+- All of the above lock through the cache store — with workers on more than
+  one host, every host must share it (§12.2) 🔴 if not.
+- Jobs with external side effects (payment, email, webhook) idempotent under
+  at-least-once delivery — an idempotency key or "already done?" check
+  before the side effect? 🟠 (see §2.1)
 
 ## 10.2 Race conditions in controllers/services
 

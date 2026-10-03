@@ -1,0 +1,48 @@
+# Docker Compose — queue-worker node TEMPLATE (only if §12 found containerized workers)
+# Project: <PROJECT NAME>   Audit date: <DATE>
+#
+# Worker-only node: no web server, no DB, no Redis — those live elsewhere.
+# The image must be the SAME release as the web tier (§12.3) and must include
+# the pcntl + posix extensions (§12.5) or job timeouts are not enforced.
+#
+# Sizing (show real numbers in the report):
+#   mem_limit >= sum(maxProcesses) * horizon 'memory' + ~64MB master/supervisor overhead
+#   e.g. 4 * 128MB + 64MB = 576MB  → 640m
+# Timeout chain (§2.2):
+#   job $timeout < horizon 'timeout' < retry_after < stop_grace_period
+
+services:
+  horizon:
+    image: registry.example.com/app:${APP_RELEASE:?set APP_RELEASE}   # reason: pinned release tag, never :latest
+    command: ["php", "artisan", "horizon"]   # reason: exec form so PHP, not /bin/sh, receives SIGTERM
+    init: true                               # reason: tiny init as PID 1 forwards signals and reaps zombies
+    env_file: .env                           # reason: secrets stay out of the image and out of git
+    environment:
+      HORIZON_ENV: burst                     # reason: picks the 'burst' supervisors; APP_ENV stays production
+      LOG_CHANNEL: stderr                    # reason: node is disposable — logs go to the collector, not local disk
+    user: "1000:1000"                        # reason: non-root
+    restart: unless-stopped                  # reason: survives reboots, but a deliberate stop (drain) stays stopped
+    stop_signal: SIGTERM
+    stop_grace_period: 3600s                 # reason: > longest job; Docker's 10s default SIGKILLs in-flight jobs
+    mem_limit: 640m                          # reason: <RECOMPUTE> formula above
+    cpus: "2.0"                              # reason: <RECOMPUTE> leave the host headroom for itself
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      # reason: host-scoped. `horizon:status` would report OK if ANY node's Horizon is up.
+      test: ["CMD", "php", "artisan", "horizon:supervisor-status", "supervisor-bulk"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options: { max-size: "20m", max-file: "5" }   # reason: bounded local log buffer
+
+# Graceful drain of THIS node:
+#   docker compose stop horizon
+#   → SIGTERM; Horizon stops taking jobs, finishes in-flight ones, exits within
+#     stop_grace_period, and stays stopped. (Don't use `horizon:terminate` here:
+#     the restart policy would just start it again.)
+# Deploy a new release (recreating the container is the restart; same graceful stop):
+#   export APP_RELEASE=<sha> && docker compose pull && docker compose up -d

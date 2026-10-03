@@ -16,19 +16,23 @@ export const install = {
   ],
 }
 
-// The 11 audit sections — the § numbering is real, it encodes the actual workflow.
-export const sections = [
-  { n: 1, title: "HTTP request lifecycle", blurb: "Blocking work in the request path — sync HTTP calls, un-queued mail, heavy middleware." },
-  { n: 2, title: "Queue & Horizon", blurb: "Job design, supervisor sizing, failed jobs, and queues nothing actually drains." },
-  { n: 3, title: "Scheduler & cron", blurb: "Overlap guards, background runs, one-server locks, the cron entry itself." },
-  { n: 4, title: "Memory & footprint", blurb: "Unbounded loads, chunking, per-worker RSS. Built for small hardware." },
-  { n: 5, title: "Redis", blurb: "Cache / session / lock usage, TTL gaps, phpredis vs predis, DB separation." },
-  { n: 6, title: "Database", blurb: "N+1 detection, missing indexes, query efficiency, write-in-loop patterns." },
+// The audit sections — the § numbering is real, it encodes the actual workflow.
+// `when` marks sections that only run if discovery detects the trigger.
+export const sections: { n: number; title: string; blurb: string; when?: string }[] = [
+  { n: 1, title: "HTTP request lifecycle", blurb: "Blocking work in the request path, un-queued mail, heavy middleware, outbound APIs without timeouts or idempotency." },
+  { n: 2, title: "Queue & Horizon", blurb: "The timeout → retry_after chain, fan-out size, retry storms, L13 job attributes, queues nothing drains." },
+  { n: 3, title: "Scheduler & cron", blurb: "Per-task duration vs frequency, overlap, one-server locks, full-table rescans, housekeeping tasks." },
+  { n: 4, title: "Memory & footprint", blurb: "Unbounded loads, chunking, per-worker RSS, static/singleton state that outlives a job." },
+  { n: 5, title: "Redis", blurb: "TTL gaps, caches that save nothing, maxmemory-policy that evicts queued jobs, DB separation." },
+  { n: 6, title: "Database", blurb: "N+1, hidden $with/$appends work, justified indexes, short transactions, PgBouncer, connection budget." },
   { n: 7, title: "PHP-FPM & OPcache", blurb: "Pool sizing to cores, OPcache for PHP 8.4 with JIT, worker recycling." },
-  { n: 8, title: "Supervisor", blurb: "Process supervision, memory bounds, graceful restarts for every worker." },
-  { n: 9, title: "App config", blurb: "Config/route/view/event caching, provider boot cost, debug & log hardening." },
-  { n: 10, title: "Concurrency", blurb: "Duplicate jobs, TOCTOU races, atomic increments under real load." },
-  { n: 11, title: "Multi-tenancy", blurb: "Per-tenant cache & queue isolation — where a missing prefix is a data leak." },
+  { n: 8, title: "Supervisor", blurb: "Process supervision, memory bounds, stopwaitsecs longer than your longest job." },
+  { n: 9, title: "App config", blurb: "Caching, provider boot cost, deploys that flush the cache, Telescope/Debugbar left on." },
+  { n: 10, title: "Concurrency", blurb: "Unique vs overlap vs debounce, TOCTOU races, idempotent side effects under retries." },
+  { n: 11, title: "Multi-tenancy", blurb: "Per-tenant isolation and noisy neighbours — where a missing prefix is a data leak.", when: "tenancy package" },
+  { n: 12, title: "Distributed workers", blurb: "Extra worker servers & containers: shared state, version skew, graceful node drain.", when: ">1 worker host" },
+  { n: 13, title: "Livewire", blurb: "Per-request cost of components: computed vs public props, polling arithmetic, lazy loading.", when: "Livewire" },
+  { n: 14, title: "Inertia v3", blurb: "HandleInertiaRequests, eager vs once/deferred props, payload size, request count, SSR, Vue/React bundles.", when: "Inertia" },
 ]
 
 export const prompts = [
@@ -36,12 +40,16 @@ export const prompts = [
   "Why is my Laravel app slow under load?",
   "Tune Horizon — workers keep getting OOM-killed.",
   "Get this Laravel project production-ready before we go live.",
+  "Our jobs sometimes run twice — find out why.",
+  "We're adding a second queue-worker server. What breaks?",
+  "Our Inertia pages feel slow — audit HandleInertiaRequests and our props.",
 ]
 
 export const configs = [
   "horizon.php", "supervisor-laravel.conf", "php-fpm-www.conf", "opcache.ini",
   "php-web.ini", "php-cli.ini", "nginx-performance.conf", "redis-separation.md",
   ".env.production.example", "deploy-cache.sh", "INDEXES_TO_ADD.md",
+  "docker-compose.worker.yml",
 ]
 
 // The hero artifact: a faux audit-report card. Findings are illustrative.
@@ -52,6 +60,7 @@ export const reportLines: {
   text: string
 }[] = [
   { glyph: "🔴", tone: "critical", loc: "app/Events/InvoicePaid.php:18", text: "event queues to 'broadcasts'; no worker drains it → never fires" },
+  { glyph: "🔴", tone: "critical", loc: "deploy/supervisor/worker.conf:4", text: "--timeout=120 ≥ retry_after 90 → long jobs run twice" },
   { glyph: "🔴", tone: "critical", loc: ".env.example:2,4", text: "ships APP_ENV=local, APP_DEBUG=true" },
   { glyph: "🟠", tone: "high", loc: "app/Http/Middleware/CompressResponse.php:34", text: "gzips full response in PHP — Nginx's job" },
   { glyph: "🟠", tone: "high", loc: "database/migrations/…invoices.php:19", text: "no index on `status`, filtered every request" },

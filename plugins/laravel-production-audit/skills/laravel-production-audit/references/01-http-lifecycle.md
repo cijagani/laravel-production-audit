@@ -46,6 +46,31 @@ For every listener:
 - Observers with heavy logic in `created/updated/deleted` that are not queued 🟠
 - Observers that dispatch further events synchronously 🟡
 
+## 1.6 Outbound API calls (wherever they run — requests, jobs, commands)
+
+For every call site found in §0's HTTP-client searches:
+
+- No explicit `->timeout()` / `->connectTimeout()` 🟠 (🔴 in the request path)
+  — Laravel's defaults are 30s / 10s, so one slow upstream pins a php-fpm
+  child or a queue worker for half a minute per call. Size the timeout to the
+  API's real p99, not the default.
+- `->retry()` without a growing or jittered delay, or retrying non-idempotent
+  POSTs 🟠 — retries multiply load on an upstream that's already failing
+  (retry storm); POST retries can double-charge / double-send
+- Write calls without an idempotency key where the API supports one 🟠
+- Several independent calls made one after another 🟡 — `Http::pool()` runs
+  them concurrently
+- Same request repeated per item / per request where a batch endpoint or a
+  short cache exists 🟡
+- Many workers calling one rate-limited API with no shared limit 🟠 —
+  `RateLimited` / `ThrottlesExceptions` job middleware (Redis variants) so the
+  limit is global, not per worker
+- Pulling all pages of a paginated API into memory before processing 🟠 —
+  process page by page
+
+Trace what upstream latency holds open while waiting: a php-fpm child, a
+worker slot, a DB transaction (6.6), a lock. That's the real cost of the call.
+
 ## Output for §1
 
 List every violation with: file path, method name, line number, severity, and a
