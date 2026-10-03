@@ -19,4 +19,10 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // Page modules are entry points (they call mount()), and shadcn ui files
+    // export variant helpers by design — Fast Refresh boundaries don't apply.
+    files: ['src/pages/**/*.tsx', 'src/components/ui/**/*.tsx'],
+    rules: { 'react-refresh/only-export-components': 'off' },
+  },
 ])

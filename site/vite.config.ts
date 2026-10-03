@@ -18,5 +18,15 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, "../docs"),
     emptyOutDir: true,
+    // One HTML file per page — plain static pages, no client router needed.
+    rollupOptions: {
+      input: {
+        home: path.resolve(__dirname, "index.html"),
+        sections: path.resolve(__dirname, "sections.html"),
+        changelog: path.resolve(__dirname, "changelog.html"),
+      },
+    },
   },
+  // The changelog page imports ../CHANGELOG.md from the repo root.
+  server: { fs: { allow: [".."] } },
 })

@@ -71,7 +71,7 @@ laravel-perf-audit-marketplace/
 
 The landing page is served via GitHub Pages at
 <https://cijagani.github.io/laravel-perf-audit-marketplace/>. The built output lives in
-[`docs/`](docs/); the source is a Vite + React + Tailwind + shadcn/ui project in
+[`docs/`](docs/); the source is a Vite + React + Tailwind + shadcn/ui + Motion project in
 [`site/`](site/) (see [`site/README.md`](site/README.md) to rebuild).
 
 To enable it: in the GitHub repo, **Settings → Pages → Build and deployment →

@@ -1,7 +1,7 @@
 # Landing page source
 
 The marketplace homepage at <https://cijagani.github.io/laravel-perf-audit-marketplace/>
-is built from this Vite + React + TypeScript + Tailwind v4 + shadcn/ui project.
+is built from this Vite + React + TypeScript + Tailwind v4 + shadcn/ui + Motion project.
 
 ## Develop
 
@@ -24,9 +24,19 @@ which GitHub Pages serves from `main` / `/docs`. The `base` is set to
 
 `docs/SAMPLE_REPORT.md` is shipped via `public/` so it survives the build.
 
+## Pages
+
+Three static pages, one HTML entry each (listed in `vite.config.ts`):
+
+| Page | Entry | Source |
+|---|---|---|
+| Home | `index.html` | `src/pages/home.tsx` |
+| Sections | `sections.html` | `src/pages/sections.tsx` |
+| Changelog | `changelog.html` | `src/pages/changelog.tsx` — renders the repo's `CHANGELOG.md` at build time |
+
 ## Edit content
 
-All copy and data live in `src/content.ts`. Page composition is in `src/App.tsx`;
-the two custom pieces are `src/components/report-panel.tsx` (the hero artifact)
-and `src/components/command-block.tsx` (copy-to-clipboard). Design tokens — the
-severity palette and fonts — are in `src/index.css`.
+All copy and data live in `src/content.ts`, including the section checklists
+and the three files the hero animation audits. Shared chrome (nav, footer,
+`MotionConfig reducedMotion="user"`) is `src/components/shell.tsx`; the hero
+animation is `src/components/audit-run.tsx`.
